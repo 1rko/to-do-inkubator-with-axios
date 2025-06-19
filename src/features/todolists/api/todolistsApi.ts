@@ -1,10 +1,10 @@
 import { instance } from "@/common/instance"
-import type { Todolist } from "./todolistsApi.types"
 import { BaseResponse } from "@/common/types"
+import type { DomainTodolist } from "@/features/todolists/model/todolists-slice.ts"
 
 export const todolistsApi = {
   getTodolists() {
-    return instance.get<Todolist[]>("/todo-lists")
+    return instance.get<DomainTodolist[]>("/todo-lists")
   },
   changeTodolistTitle(payload: { id: string; title: string }) {
     const { title, id } = payload
@@ -14,6 +14,6 @@ export const todolistsApi = {
     return instance.delete<BaseResponse>(`/todo-lists/${id}`)
   },
   createTodolist(title: string) {
-    return instance.post<BaseResponse<{ item: Todolist }>>("/todo-lists", { title })
+    return instance.post<BaseResponse<{ item: DomainTodolist }>>("/todo-lists", { title })
   },
 }

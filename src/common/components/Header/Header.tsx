@@ -1,5 +1,4 @@
-import { changeThemeModeAC } from "@/app/app-reducer"
-import { selectThemeMode } from "@/app/app-selectors"
+import { changeThemeModeAC, selectThemeMode } from "@/app/app-slice.ts"
 import { useAppDispatch } from "@/common/hooks/useAppDispatch"
 import { useAppSelector } from "@/common/hooks/useAppSelector"
 import { containerSx } from "@/common/styles/container.styles"

@@ -137,6 +137,3 @@ const container: CSSProperties = {
   justifyContent: "space-between",
   flexDirection: "column",
 }
-
-//Commemt added
-//Commemt 2 added
