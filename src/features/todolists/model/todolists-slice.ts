@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit"
 import { todolistsApi } from "@/features/todolists/api/todolistsApi.ts"
+import { fetchTasksTC } from "@/features/todolists/model/tasks-slice.ts"
 
 export type FilterValues = "all" | "active" | "completed"
 
@@ -15,9 +16,7 @@ export const todolistsSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(fetchTodolistsTC.fulfilled, (_state, action) => {
-        return action.payload.todolists.map((tl) => {
-          return { ...tl, filter: "all" }
-        })
+        return action.payload.todolists.map((tl) => ({ ...tl, filter: "all" }))
       })
       .addCase(fetchTodolistsTC.rejected, (_state, action) => {
         if (action.payload) {
@@ -59,9 +58,6 @@ export const todolistsSlice = createSlice({
       })
   },
   reducers: (create) => ({
-    setTodolistAC: create.reducer<{ todolists: DomainTodolist[] }>((_state, action) => {
-      return action.payload.todolists
-    }),
     changeTodolistFilterAC: create.reducer<{ id: string; filter: FilterValues }>((state, action) => {
       const index = state.findIndex((todolist) => todolist.id === action.payload.id)
       if (index !== -1) {
@@ -77,9 +73,11 @@ export const todolistsSlice = createSlice({
 export const fetchTodolistsTC = createAsyncThunk(`${todolistsSlice.name}/fetchTodolistTH`, async (_, thunkAPI) => {
   try {
     const res = await todolistsApi.getTodolists()
-    // в санке можно делать побочные эффекты (запросы на сервер)
+    const todolists = res.data
+    todolists.forEach((todolist) => {
+      thunkAPI.dispatch(fetchTasksTC({ todolistId: todolist.id }))
+    })
     return { todolists: res.data }
-    // и диспатчить экшены (action) или другие санки (thunk)
   } catch (error) {
     return thunkAPI.rejectWithValue(error)
   }
