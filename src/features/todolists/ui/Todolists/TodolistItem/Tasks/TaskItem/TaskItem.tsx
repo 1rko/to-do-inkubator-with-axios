@@ -26,20 +26,19 @@ export const TaskItem = ({ task, todolistId }: Props) => {
 
   const changeTaskStatus = (e: ChangeEvent<HTMLInputElement>) => {
     const newStatusValue = e.currentTarget.checked
-    //dispatch(changeTaskStatusAC({ todolistId, taskId: task.id, isDone: newStatusValue }))
     dispatch(changeTaskStatusTC({ todolistId, taskId: task.id, isDone: newStatusValue }))
   }
 
   const changeTaskTitle = (title: string) => {
-    //dispatch(changeTaskTitleAC({ todolistId, taskId: task.id, title }))
     dispatch(changeTaskTitleTC({ todolistId, taskId: task.id, title }))
   }
 
+  const isTaskCompleted = task.status === TaskStatus.Completed
+
   return (
-    <ListItem sx={getListItemSx(task.status)}>
+    <ListItem sx={getListItemSx(isTaskCompleted)}>
       <div>
-        <Checkbox checked={task.status === TaskStatus.Completed} onChange={changeTaskStatus} />
-        {/*<Checkbox checked={task.isDone === true} onChange={changeTaskStatus} />*/}
+        <Checkbox checked={isTaskCompleted} onChange={changeTaskStatus} />
         <EditableSpan value={task.title} onChange={changeTaskTitle} />
       </div>
       <IconButton onClick={deleteTask}>
