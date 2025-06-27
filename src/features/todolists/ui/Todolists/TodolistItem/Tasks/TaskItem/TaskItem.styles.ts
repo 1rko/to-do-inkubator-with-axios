@@ -1,8 +1,7 @@
 import { SxProps } from "@mui/material"
-import { TaskStatus } from "@/common/enums/enums.ts"
 
-export const getListItemSx = (status: TaskStatus): SxProps => ({
+export const getListItemSx = (status: boolean): SxProps => ({
   p: 0,
   justifyContent: "space-between",
-  opacity: status === TaskStatus.Completed ? 0.5 : 1,
+  opacity: status ? 0.5 : 1,
 })

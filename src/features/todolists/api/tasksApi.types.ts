@@ -11,7 +11,7 @@ export type DomainTask = {
   todoListId: string
   order: number
   addedDate: string
-} & { isDone?: boolean }
+}
 
 export type GetTasksResponse = {
   error: string | null
