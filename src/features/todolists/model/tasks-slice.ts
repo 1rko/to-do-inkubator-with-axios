@@ -1,7 +1,8 @@
 import { tasksApi } from "@/features/todolists/api/tasksApi.ts"
 import { DomainTask, UpdateTaskModel } from "@/features/todolists/api/tasksApi.types.ts"
 import { RootState } from "@/app/store"
-import { createAppSlice, isCompleted } from "@/common/utils"
+import { createAppSlice } from "@/common/utils"
+import { setAppStatusAC } from "@/app/app-slice.ts"
 
 export type TasksState = Record<string, DomainTask[]>
 
@@ -13,12 +14,15 @@ export const tasksSlice = createAppSlice({
   },
   reducers: (create) => ({
     fetchTasksTC: create.asyncThunk(
-      async (payload: { todolistId: string }, thunkAPI) => {
+      async (payload: { todolistId: string }, { dispatch, rejectWithValue }) => {
         try {
+          dispatch(setAppStatusAC({ status: "loading" }))
           const res = await tasksApi.getTasks(payload.todolistId)
+          dispatch(setAppStatusAC({ status: "succeeded" }))
           return { tasks: res.data.items, todolistId: payload.todolistId }
         } catch (error) {
-          return thunkAPI.rejectWithValue(error)
+          dispatch(setAppStatusAC({ status: "failed" }))
+          return rejectWithValue(error)
         }
       },
       {
@@ -66,73 +70,31 @@ export const tasksSlice = createAppSlice({
       },
     ),
 
-    changeTaskStatusTC: create.asyncThunk(
-      async (payload: { todolistId: string; taskId: string; isDone: boolean }, thunkAPI) => {
-        const { todolistId, taskId, isDone } = payload
-        const state = thunkAPI.getState() as RootState
-
-        try {
-          const task = state.tasks[todolistId].find((task) => task.id === taskId)
-
-          if (task) {
-            // Создаём модель для обновления - можно перечислить все поля
-            /*const model: UpdateTaskModel = {
-                                                  status: isCompleted(isDone),
-                                                  title: task.title,
-                                                  deadline: task.deadline,
-                                                  description: task.description,
-                                                  priority: task.priority,
-                                                  startDate: task.startDate,
-                                                }*/
-
-            // Создаём модель для обновления - а можно в нужной таске, найденной по id, заменить поле status
-            const model: UpdateTaskModel = { ...task, status: isCompleted(isDone) }
-
-            const res = await tasksApi.updateTask({
-              todolistId: payload.todolistId,
-              taskId: payload.taskId,
-              model,
-            })
-            return res.data.data.item
-          } else {
-            return thunkAPI.rejectWithValue(null)
-          }
-        } catch (error) {
-          return thunkAPI.rejectWithValue(error)
-        }
-      },
-      {
-        fulfilled: (state, action) => {
-          const { todoListId, id, status } = action.payload
-          let foundedTaskIndex = state[todoListId].findIndex((task) => task.id === id)
-          if (foundedTaskIndex !== -1) {
-            state[todoListId][foundedTaskIndex].status = status
-            //state[todoListId][foundedTaskIndex].isDone = status !== 0
-          }
-        },
-      },
-    ),
-
-    changeTaskTitleTC: create.asyncThunk(
-      async (payload: { todolistId: string; taskId: string; title: string }, thunkAPI) => {
-        const { todolistId, taskId, title } = payload
-        const state = thunkAPI.getState() as RootState
+    updateTaskTC: create.asyncThunk(
+      async (
+        payload: { todolistId: string; taskId: string; domainModel: Partial<UpdateTaskModel> },
+        { dispatch, getState, rejectWithValue },
+      ) => {
+        const { todolistId, taskId, domainModel } = payload
+        const state = getState() as RootState
 
         try {
           const task: UpdateTaskModel | undefined = state.tasks[todolistId].find((t) => t.id === taskId)
 
           if (!task) {
-            return thunkAPI.rejectWithValue("Task not found")
+            dispatch(setAppStatusAC({ status: "failed" }))
+            return rejectWithValue("Task not found")
           }
-
+          dispatch(setAppStatusAC({ status: "loading" }))
           // Создаём модель для обновления
           const model: UpdateTaskModel = {
             status: task.status,
-            title: title,
+            title: task.title,
             deadline: task.deadline,
             description: task.description,
             priority: task.priority,
             startDate: task.startDate,
+            ...domainModel, //перезаписываем полями, которые пришли в payload
           }
 
           const res = await tasksApi.updateTask({
@@ -140,17 +102,19 @@ export const tasksSlice = createAppSlice({
             taskId: payload.taskId,
             model,
           })
-          return res.data.data.item
+          dispatch(setAppStatusAC({ status: "succeeded" }))
+          return { task: res.data.data.item }
         } catch (error) {
-          return thunkAPI.rejectWithValue(error)
+          dispatch(setAppStatusAC({ status: "failed" }))
+          return rejectWithValue(error)
         }
       },
       {
         fulfilled: (state, action) => {
-          const { todoListId, id, title } = action.payload
+          const { todoListId, id } = action.payload.task
           let foundedTaskIndex = state[todoListId].findIndex((task) => task.id === id)
           if (foundedTaskIndex !== -1) {
-            state[todoListId][foundedTaskIndex].title = title
+            state[todoListId][foundedTaskIndex] = { ...action.payload.task }
           }
         },
       },
@@ -158,6 +122,6 @@ export const tasksSlice = createAppSlice({
   }),
 })
 
-export const { fetchTasksTC, changeTaskStatusTC, createTaskTC, deleteTaskTC, changeTaskTitleTC } = tasksSlice.actions
+export const { fetchTasksTC, createTaskTC, deleteTaskTC, updateTaskTC } = tasksSlice.actions
 export const tasksReducer = tasksSlice.reducer
 export const { selectTasks } = tasksSlice.selectors

@@ -1,6 +1,7 @@
 import { todolistsApi } from "@/features/todolists/api/todolistsApi.ts"
 import { fetchTasksTC } from "@/features/todolists/model/tasks-slice.ts"
 import { createAppSlice } from "@/common/utils"
+import { setAppStatusAC } from "@/app/app-slice"
 
 export type FilterValues = "all" | "active" | "completed"
 
@@ -18,16 +19,19 @@ export const todolistsSlice = createAppSlice({
   },
   reducers: (create) => ({
     fetchTodolistsTC: create.asyncThunk(
-      async (_, thunkAPI) => {
+      async (_, { dispatch, rejectWithValue }) => {
         try {
+          dispatch(setAppStatusAC({ status: "loading" }))
           const res = await todolistsApi.getTodolists()
           const todolists = res.data
           todolists.forEach((todolist) => {
-            thunkAPI.dispatch(fetchTasksTC({ todolistId: todolist.id }))
+            dispatch(fetchTasksTC({ todolistId: todolist.id }))
           })
+          dispatch(setAppStatusAC({ status: "succeeded" }))
           return { todolists: res.data }
         } catch (error) {
-          return thunkAPI.rejectWithValue(error)
+          dispatch(setAppStatusAC({ status: "failed" }))
+          return rejectWithValue(error)
         }
       },
       {
