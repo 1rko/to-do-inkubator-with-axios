@@ -20,7 +20,7 @@ export const TodolistTitle = ({ todolist }: Props) => {
 
   const deleteTodolist = () => {
     //dispatch(deleteTodolistAC({ id }))
-    dispatch(deleteTodolistTC({ id }))
+    dispatch(deleteTodolistTC(id ))
   }
 
   const changeTodolistTitle = (title: string) => {

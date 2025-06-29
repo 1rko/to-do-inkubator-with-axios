@@ -8,7 +8,8 @@ export type FilterValues = "all" | "active" | "completed"
 export type DomainTodolist = {
   id: string
   title: string
-  filter: FilterValues
+  addedDate: string
+  order: number
 } & { filter: FilterValues }
 
 export const todolistsSlice = createAppSlice({
@@ -39,6 +40,9 @@ export const todolistsSlice = createAppSlice({
           action.payload?.todolists.forEach((tl) => {
             state.push({ ...tl, filter: "all" })
           })
+        },
+        rejected: () => {
+          console.log('Error fetching todolists')
         },
       },
     ),
@@ -80,10 +84,10 @@ export const todolistsSlice = createAppSlice({
     ),
 
     deleteTodolistTC: create.asyncThunk(
-      async (payload: { id: string }, thunkAPI) => {
+      async ( id: string , thunkAPI) => {
         try {
-          await todolistsApi.deleteTodolist(payload.id)
-          return payload
+          await todolistsApi.deleteTodolist(id)
+          return {id}
         } catch (error) {
           return thunkAPI.rejectWithValue(error)
         }

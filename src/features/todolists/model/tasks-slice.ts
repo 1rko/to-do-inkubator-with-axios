@@ -3,6 +3,7 @@ import { DomainTask, UpdateTaskModel } from "@/features/todolists/api/tasksApi.t
 import { RootState } from "@/app/store"
 import { createAppSlice } from "@/common/utils"
 import { setAppStatusAC } from "@/app/app-slice.ts"
+import { createTodolistTC, deleteTodolistTC } from "@/features/todolists/model/todolists-slice.ts"
 
 export type TasksState = Record<string, DomainTask[]>
 
@@ -11,6 +12,15 @@ export const tasksSlice = createAppSlice({
   initialState: {} as TasksState,
   selectors: {
     selectTasks: (state) => state,
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(createTodolistTC.fulfilled, (state, action) => {
+        state[action.payload.id] = []
+      })
+      .addCase(deleteTodolistTC.fulfilled, (state, action) => {
+        delete state[action.payload.id]
+      })
   },
   reducers: (create) => ({
     fetchTasksTC: create.asyncThunk(
