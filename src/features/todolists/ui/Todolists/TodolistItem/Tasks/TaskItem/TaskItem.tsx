@@ -14,9 +14,10 @@ import { isCompleted } from "@/common/utils"
 type Props = {
   task: DomainTask
   todolistId: string
+  disabled: boolean
 }
 
-export const TaskItem = ({ task, todolistId }: Props) => {
+export const TaskItem = ({ task, todolistId, disabled }: Props) => {
   console.log("task in TaskItem", task)
 
   const dispatch = useAppDispatch()
@@ -39,10 +40,10 @@ export const TaskItem = ({ task, todolistId }: Props) => {
   return (
     <ListItem sx={getListItemSx(isTaskCompleted)}>
       <div>
-        <Checkbox checked={isTaskCompleted} onChange={changeTaskStatus} />
-        <EditableSpan value={task.title} onChange={changeTaskTitle} />
+        <Checkbox checked={isTaskCompleted} onChange={changeTaskStatus} disabled={disabled} />
+        <EditableSpan value={task.title} onChange={changeTaskTitle} disabled={disabled} />
       </div>
-      <IconButton onClick={deleteTask}>
+      <IconButton onClick={deleteTask} disabled={disabled}>
         <DeleteIcon />
       </IconButton>
     </ListItem>
