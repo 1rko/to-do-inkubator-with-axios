@@ -13,16 +13,16 @@ type Props = {
 }
 
 export const FilterButtons = ({ todolist }: Props) => {
-  const { id, filter } = todolist
+  const { id, filter, entityStatus } = todolist
 
   const dispatch = useAppDispatch()
 
   const changeFilter = (filter: FilterValues) => {
     dispatch(changeTodolistFilterAC({ id, filter }))
   }
-
+  //inert в Box - блокирует кнопки, если todolist.entityStatus === "loading"
   return (
-    <Box sx={containerSx}>
+    <Box sx={containerSx} inert={entityStatus === "loading"}>
       <Button variant={filter === "all" ? "outlined" : "text"} color={"inherit"} onClick={() => changeFilter("all")}>
         All
       </Button>

@@ -12,7 +12,6 @@ export const handleServerNetworkError = (error: unknown, dispatch: Dispatch) => 
   } else {
     errorMessage = JSON.stringify(error)
   }
-  debugger
   dispatch(setAppErrorAC({ error: errorMessage }))
   dispatch(setAppStatusAC({ status: "failed" }))
 }

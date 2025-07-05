@@ -10,7 +10,7 @@ type Props = {
 }
 
 export const Tasks = ({ todolist }: Props) => {
-  const { id, filter, entityStatus } = todolist
+  const { id, filter, entityStatus: todolistEntityStatus } = todolist
 
   const tasks = useAppSelector(selectTasks)
 
@@ -33,7 +33,7 @@ export const Tasks = ({ todolist }: Props) => {
           key={task.id}
           task={task}
           todolistId={id}
-          disabled={entityStatus==='loading' }
+          disabled={task.entityStatus==='loading' || todolistEntityStatus==='loading'}
         />)}
         </List>
       )}

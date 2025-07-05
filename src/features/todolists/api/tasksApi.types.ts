@@ -1,4 +1,5 @@
 import { TaskPriority, TaskStatus } from "@/common/enums/enums.ts"
+import { RequestStatus } from "@/common/types"
 
 export type DomainTask = {
   description: string
@@ -11,6 +12,8 @@ export type DomainTask = {
   todoListId: string
   order: number
   addedDate: string
+} & {
+  entityStatus: RequestStatus
 }
 
 export type GetTasksResponse = {
