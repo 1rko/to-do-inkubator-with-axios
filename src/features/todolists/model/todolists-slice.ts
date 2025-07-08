@@ -137,6 +137,48 @@ export const todolistsSlice = createAppSlice({
       },
     ),
 
+    reorderTodolistTC: create.asyncThunk(
+      async (
+        {
+          aciveId,
+          putAfterItemId,
+          newOrderedTodolists,
+          prevTodolists,
+        }: {
+          aciveId: string
+          putAfterItemId: string | null
+          newOrderedTodolists: DomainTodolist[]
+          prevTodolists: DomainTodolist[]
+        },
+        thunkAPI,
+      ) => {
+        const { dispatch, rejectWithValue } = thunkAPI
+        try {
+          dispatch(setAppStatusAC({ status: "loading" }))
+          dispatch(optimisticSetReorderedTodolistsAC({ newOrderedTodolists }))
+          const res = await todolistsApi.reorderTodolist({ aciveId, putAfterItemId })
+          if (res.data.resultCode === ResultCode.Success) {
+            dispatch(setAppStatusAC({ status: "succeeded" }))
+            return
+          } else {
+            handleServerAppError(res.data, dispatch)
+            dispatch(setAppStatusAC({ status: "failed" }))
+            dispatch(optimisticSetReorderedTodolistsAC({ newOrderedTodolists: prevTodolists }))
+            return rejectWithValue(null)
+          }
+        } catch (error) {
+          dispatch(optimisticSetReorderedTodolistsAC({ newOrderedTodolists: prevTodolists }))
+          handleServerNetworkError(error, dispatch)
+          return rejectWithValue(null)
+        }
+      },
+      {
+        /*fulfilled: (_state, action) => {
+          return action.payload.newOrderedTodolists
+        },*/
+      },
+    ),
+
     changeTodolistFilterAC: create.reducer<{ id: string; filter: FilterValues }>((state, action) => {
       const index = state.findIndex((todolist) => todolist.id === action.payload.id)
       if (index !== -1) {
@@ -149,6 +191,9 @@ export const todolistsSlice = createAppSlice({
         state[index].entityStatus = action.payload.status
       }
     }),
+    optimisticSetReorderedTodolistsAC: create.reducer<{ newOrderedTodolists: DomainTodolist[] }>((state, action) => {
+      return action.payload.newOrderedTodolists
+    }),
   }),
 })
 
@@ -159,6 +204,8 @@ export const {
   createTodolistTC,
   deleteTodolistTC,
   changeTodolistStatusAC,
+  reorderTodolistTC,
+  optimisticSetReorderedTodolistsAC: optimisticSetReorderedTodolistsAC,
 } = todolistsSlice.actions
 export const todolistsReducer = todolistsSlice.reducer
 export const { selectTodolists } = todolistsSlice.selectors

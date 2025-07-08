@@ -16,4 +16,8 @@ export const todolistsApi = {
   createTodolist(title: string) {
     return instance.post<BaseResponse<{ item: DomainTodolist }>>("/todo-lists", { title })
   },
+  reorderTodolist({aciveId, putAfterItemId}:{ aciveId: string, putAfterItemId: string | null}) {
+
+    return instance.put<BaseResponse>(`/todo-lists/${aciveId}/reorder`, { putAfterItemId })
+  },
 }
