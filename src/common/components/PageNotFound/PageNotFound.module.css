@@ -1,0 +1,36 @@
+.title {
+    text-align: center;
+    font-size: 250px;
+    margin: 0;
+}
+
+.subtitle {
+    text-align: center;
+    font-size: 50px;
+    margin: 0;
+    text-transform: uppercase;
+}
+
+.buttonClass {
+    font-size:15px;
+    font-family:Arial;
+    width:140px;
+    height:50px;
+    border-width:1px;
+    color:#fff;
+    border-color:#0b0e07;
+    border-top-left-radius:3px;
+    border-top-right-radius:3px;
+    border-bottom-left-radius:3px;
+    border-bottom-right-radius:3px;
+    box-shadow:inset 0px -3px 7px 0px #29bbff;
+    text-shadow:inset 0px 1px 0px #263666;
+    background:linear-gradient(#2dabf9, #0688fa);
+    text-align: center;
+    line-height: 50px;
+    margin: 0 auto;
+}
+
+.buttonClass:hover {
+    background: linear-gradient(#0688fa, #2dabf9);
+}
