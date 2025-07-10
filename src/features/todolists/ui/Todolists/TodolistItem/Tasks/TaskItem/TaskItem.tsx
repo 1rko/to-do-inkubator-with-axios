@@ -18,8 +18,6 @@ type Props = {
 }
 
 export const TaskItem = ({ task, todolistId, disabled }: Props) => {
-  console.log("task in TaskItem", task)
-
   const dispatch = useAppDispatch()
 
   const deleteTask = () => {

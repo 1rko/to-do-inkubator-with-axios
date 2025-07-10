@@ -1,23 +1,11 @@
-import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core"
-import {
-  SortableContext,
-  arrayMove,
-  sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
-  rectSortingStrategy,
-} from "@dnd-kit/sortable"
+import { closestCenter, DndContext, KeyboardSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core"
+import { arrayMove, rectSortingStrategy, SortableContext, sortableKeyboardCoordinates } from "@dnd-kit/sortable"
 
 import { useAppDispatch, useAppSelector } from "@/common/hooks"
 import { TodolistItem } from "./TodolistItem/TodolistItem"
 import Grid from "@mui/material/Grid2"
 import Paper from "@mui/material/Paper"
-import {
-  fetchTodolistsTC,
-  reorderTodolistAC,
-  reorderTodolistTC,
-  selectTodolists,
-  optimisticSetReorderedTodolistsAC,
-} from "../../model/todolists-slice"
+import { fetchTodolistsTC, reorderTodolistTC, selectTodolists } from "../../model/todolists-slice"
 import { useEffect } from "react"
 import { SortableItem } from "@/features/todolists/ui/Todolists/TodolistItem/SortableItem.tsx"
 
@@ -44,7 +32,7 @@ export const Todolists = () => {
       const newIndex = todolists.findIndex((task) => task.id === over.id)
       const putAfterItemId = todolists[newIndex - 1]?.id || null //putAfterItemId - id тудулиста, расположенного перед измененным местом
       const newTodolists = arrayMove(todolists, oldIndex, newIndex) //весь массив с измененными местами тудулистов
-/*
+      /*
 
       console.log("todolists ", todolists)
       console.log("active.id ", active.id)
