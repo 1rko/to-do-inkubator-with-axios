@@ -2,9 +2,10 @@ import { tasksApi } from "@/features/todolists/api/tasksApi.ts"
 import {
   DomainTask,
   domainTaskSchema,
-  getTasksResponseSchema, taskOperationResponseSchema,
+  getTasksResponseSchema,
+  taskOperationResponseSchema,
   UpdateTaskModel,
-  updateTaskModelSchema
+  updateTaskModelSchema,
 } from "@/features/todolists/api/tasksApi.types.ts"
 import { RootState } from "@/app/store"
 import { createAppSlice, handleServerAppError, handleServerNetworkError } from "@/common/utils"
@@ -12,6 +13,7 @@ import { setAppErrorAC, setAppStatusAC } from "@/app/app-slice.ts"
 import { createTodolistTC, deleteTodolistTC } from "@/features/todolists/model/todolists-slice.ts"
 import { ResultCode } from "@/common/enums/enums.ts"
 import { defaultResponseSchema, RequestStatus } from "@/common/types"
+import { CLEAR_DATA } from "@/common/actions"
 
 export type TaskForTasksSlice = DomainTask & {
   entityStatus: RequestStatus
@@ -32,6 +34,9 @@ export const tasksSlice = createAppSlice({
       })
       .addCase(deleteTodolistTC.fulfilled, (state, action) => {
         delete state[action.payload.id]
+      })
+      .addCase(CLEAR_DATA, (_state, _action) => {
+        return {}
       })
   },
   reducers: (create) => ({
@@ -152,7 +157,7 @@ export const tasksSlice = createAppSlice({
             taskId: payload.taskId,
             model,
           })
-          updateTaskModelSchema.parse(res.data) //💎
+          updateTaskModelSchema.parse(res.data.data.item) //💎
           if (res.data.resultCode === ResultCode.Success) {
             dispatch(setAppStatusAC({ status: "succeeded" }))
             return { task: res.data.data.item }

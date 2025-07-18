@@ -6,14 +6,15 @@ import { fetchTodolistsTC, selectTodolists } from "../../model/todolists-slice"
 import { useEffect } from "react"
 
 export const Todolists = () => {
+  const todolists = useAppSelector(selectTodolists)
+
   const dispatch = useAppDispatch()
 
   useEffect(() => {
     dispatch(fetchTodolistsTC())
   }, [])
 
-  const todolists = useAppSelector(selectTodolists)
-
+  debugger
   return (
     <>
       {todolists.map((todolist) => (

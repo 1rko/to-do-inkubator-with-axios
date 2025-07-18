@@ -5,6 +5,7 @@ import { setAppStatusAC } from "@/app/app-slice"
 import { defaultResponseSchema, RequestStatus } from "@/common/types"
 import { ResultCode } from "@/common/enums/enums.ts"
 import { createTodolistResponseSchema, Todolist, todolistSchema } from "@/features/todolists/api/todolistsApi.types.ts"
+import { CLEAR_DATA } from "@/common/actions"
 
 export type FilterValues = "all" | "active" | "completed"
 
@@ -18,6 +19,12 @@ export const todolistsSlice = createAppSlice({
   initialState: [] as DomainTodolist[],
   selectors: {
     selectTodolists: (state) => state,
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(CLEAR_DATA, (_state, _action) => {
+        return []
+      })
   },
   reducers: (create) => ({
     fetchTodolistsTC: create.asyncThunk(

@@ -15,8 +15,14 @@ export const baseResponseSchema = <T extends z.ZodTypeAny>(dataSchema: T) => {
   })
 }
 
+
+// Создаем тип для базового ответа с возможностью указания типа данных
+export type BaseResponse<T = {}> = z.infer<ReturnType<typeof baseResponseSchema<z.ZodType<T>>>>
+
+// Дефолтная схема для ответа без данных
 export const defaultResponseSchema = baseResponseSchema(z.object({}))
 
-export type BaseResponse = z.infer<typeof defaultResponseSchema>
+//export type BaseResponse = z.infer<typeof defaultResponseSchema>
 
 export type RequestStatus = "idle" | "loading" | "succeeded" | "failed"
+
