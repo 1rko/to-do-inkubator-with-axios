@@ -10,7 +10,9 @@ import FormLabel from "@mui/material/FormLabel"
 import Grid from "@mui/material/Grid2"
 import TextField from "@mui/material/TextField"
 import { Controller, SubmitHandler, useForm } from "react-hook-form"
+import { zodResolver } from '@hookform/resolvers/zod'
 import s from "./Login.module.css"
+import { LoginInputs, loginSchema } from "@/features/auth/lib/schemas"
 
 export const Login = () => {
   const themeMode = useAppSelector(selectThemeMode)
@@ -28,7 +30,10 @@ export const Login = () => {
     reset,
     control,
     formState: { errors },
-  } = useForm<LoginInputs>({ defaultValues: { email: "", password: "", rememberMe: false } })
+  } = useForm<LoginInputs>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { email: "", password: "", rememberMe: false }
+  })
 
   return (
     <Grid container justifyContent={"center"}>
@@ -59,13 +64,7 @@ export const Login = () => {
               error={!!errors.email}
               label="Email"
               margin="normal"
-              {...register("email", {
-                required: "Email is required",
-                pattern: {
-                  value: /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/,
-                  message: "Incorrect email address",
-                },
-              })}
+              {...register("email")}
             />
             {errors.email && <span className={s.errorMessage}>{errors.email.message}</span>}
             <TextField
@@ -73,17 +72,7 @@ export const Login = () => {
               type="password"
               label="Password"
               margin="normal"
-              {...register("password", {
-                required: "Password is required",
-                minLength: {
-                  value: 6,
-                  message: "Password must be at least 6 characters",
-                },
-                maxLength: {
-                  value: 99,
-                  message: "Password must be less than 100 characters",
-                },
-              })}
+              {...register("password")}
             />
             {errors.password && <span className={s.errorMessage}>{errors.password.message}</span>}
             <FormControlLabel
@@ -106,8 +95,4 @@ export const Login = () => {
   )
 }
 
-type LoginInputs = {
-  email: string
-  password: string
-  rememberMe: boolean
-}
+
