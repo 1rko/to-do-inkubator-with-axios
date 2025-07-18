@@ -1,13 +1,23 @@
 import { tasksApi } from "@/features/todolists/api/tasksApi.ts"
-import { DomainTask, UpdateTaskModel } from "@/features/todolists/api/tasksApi.types.ts"
+import {
+  DomainTask,
+  domainTaskSchema,
+  getTasksResponseSchema, taskOperationResponseSchema,
+  UpdateTaskModel,
+  updateTaskModelSchema
+} from "@/features/todolists/api/tasksApi.types.ts"
 import { RootState } from "@/app/store"
 import { createAppSlice, handleServerAppError, handleServerNetworkError } from "@/common/utils"
 import { setAppErrorAC, setAppStatusAC } from "@/app/app-slice.ts"
 import { createTodolistTC, deleteTodolistTC } from "@/features/todolists/model/todolists-slice.ts"
 import { ResultCode } from "@/common/enums/enums.ts"
-import { RequestStatus } from "@/common/types"
+import { defaultResponseSchema, RequestStatus } from "@/common/types"
 
-export type TasksState = Record<string, DomainTask[]>
+export type TaskForTasksSlice = DomainTask & {
+  entityStatus: RequestStatus
+}
+
+export type TasksState = Record<string, TaskForTasksSlice[]>
 
 export const tasksSlice = createAppSlice({
   name: "tasks",
@@ -30,6 +40,8 @@ export const tasksSlice = createAppSlice({
         try {
           dispatch(setAppStatusAC({ status: "loading" }))
           const res = await tasksApi.getTasks(payload.todolistId)
+          domainTaskSchema.array().parse(res.data.items) // 💎
+          getTasksResponseSchema.parse(res.data) // 💎
           dispatch(setAppStatusAC({ status: "succeeded" }))
           return { tasks: res.data.items, todolistId: payload.todolistId }
         } catch (error) {
@@ -51,6 +63,7 @@ export const tasksSlice = createAppSlice({
         try {
           dispatch(setAppStatusAC({ status: "loading" }))
           const res = await tasksApi.createTask({ todolistId: payload.todolistId, title: payload.title })
+          taskOperationResponseSchema.parse(res.data) // 💎 ZOD
           if (res.data.resultCode === ResultCode.Success) {
             dispatch(setAppStatusAC({ status: "succeeded" }))
             return res.data.data.item
@@ -79,6 +92,7 @@ export const tasksSlice = createAppSlice({
           dispatch(setAppStatusAC({ status: "loading" }))
           dispatch(changeTaskEntityStatusAC({ todolistId, taskId, status: "loading" }))
           const res = await tasksApi.deleteTask({ todolistId, taskId: payload.taskId })
+          defaultResponseSchema.parse(res.data) // 💎 ZOD
           if (res.data.resultCode === ResultCode.Success) {
             dispatch(setAppStatusAC({ status: "succeeded" }))
             dispatch(changeTaskEntityStatusAC({ todolistId, taskId, status: "succeeded" }))
@@ -138,6 +152,7 @@ export const tasksSlice = createAppSlice({
             taskId: payload.taskId,
             model,
           })
+          updateTaskModelSchema.parse(res.data) //💎
           if (res.data.resultCode === ResultCode.Success) {
             dispatch(setAppStatusAC({ status: "succeeded" }))
             return { task: res.data.data.item }
@@ -155,7 +170,7 @@ export const tasksSlice = createAppSlice({
           const { todoListId, id } = action.payload.task
           let foundedTaskIndex = state[todoListId].findIndex((task) => task.id === id)
           if (foundedTaskIndex !== -1) {
-            state[todoListId][foundedTaskIndex] = { ...action.payload.task }
+            state[todoListId][foundedTaskIndex] = { ...action.payload.task, entityStatus: "idle" }
           }
         },
       },
