@@ -1,4 +1,4 @@
-import { selectThemeMode } from "@/app/app-slice"
+import { selectIsLoggedIn, selectThemeMode, setIsLoggedInAC } from "@/app/app-slice"
 import { useAppDispatch, useAppSelector } from "@/common/hooks"
 import { getTheme } from "@/common/theme"
 import Button from "@mui/material/Button"
@@ -10,25 +10,33 @@ import FormLabel from "@mui/material/FormLabel"
 import Grid from "@mui/material/Grid2"
 import TextField from "@mui/material/TextField"
 import { Controller, SubmitHandler, useForm } from "react-hook-form"
-import { zodResolver } from '@hookform/resolvers/zod'
+import { zodResolver } from "@hookform/resolvers/zod"
 import s from "./Login.module.css"
 import { LoginInputs, loginSchema } from "@/features/auth/lib/schemas"
-import { loginTC, selectIsLoggedIn } from "@/features/auth/model/auth-slice.ts"
 import { Navigate } from "react-router"
 import { Path } from "@/common/routing"
+import { useLoginMutation } from "../../api/authApi.ts"
+import { ResultCode } from "@/common/enums/enums.ts"
+import { AUTH_TOKEN } from "@/common/constants"
 
 export const Login = () => {
   const themeMode = useAppSelector(selectThemeMode)
   const isLoggedIn = useAppSelector(selectIsLoggedIn)
 
-  const theme = getTheme(themeMode)
-
   const dispatch = useAppDispatch()
 
+  const [login] = useLoginMutation()
+
+  const theme = getTheme(themeMode)
+
   const onSubmit: SubmitHandler<LoginInputs> = (data) => {
-    console.log(data)
-    dispatch(loginTC(data))
-    //reset()
+    login(data).then((res) => {
+      if (res.data?.resultCode === ResultCode.Success) {
+        dispatch(setIsLoggedInAC({ isLoggedIn: true }))
+        localStorage.setItem(AUTH_TOKEN, res.data.data.token)
+        reset()
+      }
+    })
   }
 
   const {
@@ -39,7 +47,7 @@ export const Login = () => {
     formState: { errors },
   } = useForm<LoginInputs>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { email: "", password: "", rememberMe: false }
+    defaultValues: { email: "", password: "", rememberMe: false },
   })
 
   if (isLoggedIn) {
@@ -71,12 +79,7 @@ export const Login = () => {
             </p>
           </FormLabel>
           <FormGroup>
-            <TextField
-              error={!!errors.email}
-              label="Email"
-              margin="normal"
-              {...register("email")}
-            />
+            <TextField error={!!errors.email} label="Email" margin="normal" {...register("email")} />
             {errors.email && <span className={s.errorMessage}>{errors.email.message}</span>}
             <TextField
               error={!!errors.password}
@@ -105,5 +108,3 @@ export const Login = () => {
     </Grid>
   )
 }
-
-

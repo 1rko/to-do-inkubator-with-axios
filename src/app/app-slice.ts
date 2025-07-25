@@ -8,12 +8,14 @@ export const appSlice = createSlice({
   initialState: {
     themeMode: "light" as ThemeMode,
     status: "idle" as RequestStatus,
-    error: null as string | null
+    error: null as string | null,
+    isLoggedIn: false,
   },
   selectors: {
     selectThemeMode: (state) => state.themeMode,
     selectStatus: (state) => state.status,
     selectAppError: (state) => state.error,
+    selectIsLoggedIn: state => state.isLoggedIn,
   },
   // reducers состоит из подредьюсеров, эквивалентных одному оператору case в switch
   reducers: (create) => ({
@@ -27,11 +29,14 @@ export const appSlice = createSlice({
     setAppErrorAC: create.reducer<{ error: string | null }>((state, action) => {
       state.error = action.payload.error
     }),
+    setIsLoggedInAC: create.reducer<{ isLoggedIn: boolean }>((state, action) => {
+      state.isLoggedIn = action.payload.isLoggedIn
+    }),
   }),
 })
 
 // action creator достается из appSlice.actions
-export const { changeThemeModeAC, setAppStatusAC, setAppErrorAC } = appSlice.actions
+export const { changeThemeModeAC, setAppStatusAC, setAppErrorAC, setIsLoggedInAC } = appSlice.actions
 // reducer достается из appSlice.reducer
 export const appReducer = appSlice.reducer
-export const { selectThemeMode, selectStatus, selectAppError } = appSlice.selectors
+export const { selectThemeMode, selectStatus, selectAppError, selectIsLoggedIn } = appSlice.selectors

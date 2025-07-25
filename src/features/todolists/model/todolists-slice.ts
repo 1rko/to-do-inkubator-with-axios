@@ -1,10 +1,7 @@
-import { _todolistsApi } from "@/features/todolists/api/_todolistsApi.ts"
-import { fetchTasksTC } from "@/features/todolists/model/tasks-slice.ts"
-import { createAppSlice, handleServerAppError, handleServerNetworkError } from "@/common/utils"
-import { setAppStatusAC } from "@/app/app-slice"
-import { defaultResponseSchema, RequestStatus } from "@/common/types"
-import { ResultCode } from "@/common/enums/enums.ts"
-import { createTodolistResponseSchema, Todolist, todolistSchema } from "@/features/todolists/api/todolistsApi.types.ts"
+//import { _todolistsApi } from "@/features/todolists/api/todolistsApi.ts"
+import { createAppSlice } from "@/common/utils"
+import { RequestStatus } from "@/common/types"
+import { Todolist } from "@/features/todolists/api/todolistsApi.types.ts"
 import { CLEAR_DATA } from "@/common/actions"
 
 export type FilterValues = "all" | "active" | "completed"
@@ -27,7 +24,7 @@ export const todolistsSlice = createAppSlice({
       })
   },
   reducers: (create) => ({
-    fetchTodolistsTC: create.asyncThunk(
+    /*fetchTodolistsTC: create.asyncThunk(
       async (_, thunkAPI) => {
         const { dispatch, rejectWithValue } = thunkAPI
         try {
@@ -110,9 +107,9 @@ export const todolistsSlice = createAppSlice({
           state.unshift({ ...action.payload, filter: "all", entityStatus: "idle" })
         },
       },
-    ),
+    ),*/
 
-    deleteTodolistTC: create.asyncThunk(
+    /*deleteTodolistTC: create.asyncThunk(
       async (id: string, thunkAPI) => {
         const { dispatch, rejectWithValue } = thunkAPI
         try {
@@ -142,7 +139,7 @@ export const todolistsSlice = createAppSlice({
           }
         },
       },
-    ),
+    ),*/
 
     changeTodolistFilterAC: create.reducer<{ id: string; filter: FilterValues }>((state, action) => {
       const index = state.findIndex((todolist) => todolist.id === action.payload.id)
@@ -161,10 +158,10 @@ export const todolistsSlice = createAppSlice({
 
 export const {
   changeTodolistFilterAC,
-  fetchTodolistsTC,
+ /* fetchTodolistsTC,
   changeTodolistTitleTC,
   createTodolistTC,
-  deleteTodolistTC,
+  deleteTodolistTC,*/
   changeTodolistStatusAC,
 } = todolistsSlice.actions
 export const todolistsReducer = todolistsSlice.reducer

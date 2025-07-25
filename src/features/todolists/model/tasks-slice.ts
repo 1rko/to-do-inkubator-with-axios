@@ -10,7 +10,7 @@ import {
 import { RootState } from "@/app/store"
 import { createAppSlice, handleServerAppError, handleServerNetworkError } from "@/common/utils"
 import { setAppErrorAC, setAppStatusAC } from "@/app/app-slice.ts"
-import { createTodolistTC, deleteTodolistTC } from "@/features/todolists/model/todolists-slice.ts"
+//import { createTodolistTC, deleteTodolistTC } from "@/features/todolists/model/todolists-slice.ts"
 import { ResultCode } from "@/common/enums/enums.ts"
 import { defaultResponseSchema, RequestStatus } from "@/common/types"
 import { CLEAR_DATA } from "@/common/actions"
@@ -29,12 +29,12 @@ export const tasksSlice = createAppSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(createTodolistTC.fulfilled, (state, action) => {
+     /* .addCase(createTodolistTC.fulfilled, (state, action) => {
         state[action.payload.id] = []
       })
       .addCase(deleteTodolistTC.fulfilled, (state, action) => {
         delete state[action.payload.id]
-      })
+      })*/
       .addCase(CLEAR_DATA, (_state, _action) => {
         return {}
       })

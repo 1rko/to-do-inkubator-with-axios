@@ -2,7 +2,7 @@ import { type ChangeEvent, type CSSProperties, useEffect, useState } from "react
 import Checkbox from "@mui/material/Checkbox"
 import { CreateItemForm, EditableSpan } from "@/common/components"
 import { Todolist } from "@/features/todolists/api/todolistsApi.types.ts"
-import { _todolistsApi } from "@/features/todolists/api/_todolistsApi.ts"
+import { _todolistsApi } from "@/features/todolists/api/todolistsApi.ts"
 import { tasksApi } from "@/features/todolists/api/tasksApi.ts"
 import { DomainTask, UpdateTaskModel } from "@/features/todolists/api/tasksApi.types.ts"
 import { TaskStatus } from "@/common/enums/enums.ts"
