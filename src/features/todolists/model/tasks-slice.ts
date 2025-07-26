@@ -1,4 +1,4 @@
-import { tasksApi } from "@/features/todolists/api/tasksApi.ts"
+import { _tasksApi } from "@/features/todolists/api/tasksApi.ts"
 import {
   DomainTask,
   domainTaskSchema,
@@ -15,11 +15,11 @@ import { ResultCode } from "@/common/enums/enums.ts"
 import { defaultResponseSchema, RequestStatus } from "@/common/types"
 import { CLEAR_DATA } from "@/common/actions"
 
-export type TaskForTasksSlice = DomainTask & {
+export type Task = DomainTask & {
   entityStatus: RequestStatus
 }
 
-export type TasksState = Record<string, TaskForTasksSlice[]>
+export type TasksState = Record<string, Task[]>
 
 export const tasksSlice = createAppSlice({
   name: "tasks",
@@ -44,7 +44,7 @@ export const tasksSlice = createAppSlice({
       async (payload: { todolistId: string }, { dispatch, rejectWithValue }) => {
         try {
           dispatch(setAppStatusAC({ status: "loading" }))
-          const res = await tasksApi.getTasks(payload.todolistId)
+          const res = await _tasksApi.getTasks(payload.todolistId)
           domainTaskSchema.array().parse(res.data.items) // 💎
           getTasksResponseSchema.parse(res.data) // 💎
           dispatch(setAppStatusAC({ status: "succeeded" }))
@@ -67,7 +67,7 @@ export const tasksSlice = createAppSlice({
         const { dispatch, rejectWithValue } = thunkAPI
         try {
           dispatch(setAppStatusAC({ status: "loading" }))
-          const res = await tasksApi.createTask({ todolistId: payload.todolistId, title: payload.title })
+          const res = await _tasksApi.createTask({ todolistId: payload.todolistId, title: payload.title })
           taskOperationResponseSchema.parse(res.data) // 💎 ZOD
           if (res.data.resultCode === ResultCode.Success) {
             dispatch(setAppStatusAC({ status: "succeeded" }))
@@ -96,7 +96,7 @@ export const tasksSlice = createAppSlice({
         try {
           dispatch(setAppStatusAC({ status: "loading" }))
           dispatch(changeTaskEntityStatusAC({ todolistId, taskId, status: "loading" }))
-          const res = await tasksApi.deleteTask({ todolistId, taskId: payload.taskId })
+          const res = await _tasksApi.deleteTask({ todolistId, taskId: payload.taskId })
           defaultResponseSchema.parse(res.data) // 💎 ZOD
           if (res.data.resultCode === ResultCode.Success) {
             dispatch(setAppStatusAC({ status: "succeeded" }))
@@ -152,7 +152,7 @@ export const tasksSlice = createAppSlice({
             ...domainModel, //перезаписываем полями, которые пришли в payload
           }
 
-          const res = await tasksApi.updateTask({
+          const res = await _tasksApi.updateTask({
             todolistId: payload.todolistId,
             taskId: payload.taskId,
             model,

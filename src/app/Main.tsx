@@ -11,7 +11,7 @@ import { selectIsLoggedIn } from "@/app/app-slice.ts"
 export const Main = () => {
   const isLoggedIn = useAppSelector(selectIsLoggedIn)
 
-  const [createTodolistMutation, { data, error, isLoading }] = useCreateTodolistMutation()
+  const [createTodolistMutation] = useCreateTodolistMutation()
 
   const createTodolist = (title: string) => {
     createTodolistMutation(title)

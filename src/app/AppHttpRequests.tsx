@@ -3,7 +3,7 @@ import Checkbox from "@mui/material/Checkbox"
 import { CreateItemForm, EditableSpan } from "@/common/components"
 import { Todolist } from "@/features/todolists/api/todolistsApi.types.ts"
 import { _todolistsApi } from "@/features/todolists/api/todolistsApi.ts"
-import { tasksApi } from "@/features/todolists/api/tasksApi.ts"
+import { _tasksApi } from "@/features/todolists/api/tasksApi.ts"
 import { DomainTask, UpdateTaskModel } from "@/features/todolists/api/tasksApi.types.ts"
 import { TaskStatus } from "@/common/enums/enums.ts"
 
@@ -17,7 +17,7 @@ export const AppHttpRequests = () => {
       const todolists = res.data
       setTodolists(todolists)
       todolists.forEach((todolist) => {
-        tasksApi.getTasks(todolist.id).then((res) => {
+        _tasksApi.getTasks(todolist.id).then((res) => {
           console.log(res.data)
           setTasks((prevTasks) => ({ ...prevTasks, [todolist.id]: res.data.items }))
         })
@@ -49,14 +49,14 @@ export const AppHttpRequests = () => {
   }
 
   const createTask = (todolistId: string, title: string) => {
-    tasksApi.createTask({ todolistId, title }).then((res) => {
+    _tasksApi.createTask({ todolistId, title }).then((res) => {
       const newTask = res.data.data.item
       setTasks({ ...tasks, [todolistId]: [newTask, ...tasks[todolistId]] })
     })
   }
 
   const deleteTask = (todolistId: string, taskId: string) => {
-    tasksApi.deleteTask({ todolistId, taskId }).then(() => {
+    _tasksApi.deleteTask({ todolistId, taskId }).then(() => {
       setTasks((prevTasks) => ({
         ...prevTasks,
         [todolistId]: prevTasks[todolistId].filter((task) => task.id !== taskId),
@@ -76,7 +76,7 @@ export const AppHttpRequests = () => {
       startDate: task.startDate,
     }
 
-    tasksApi.updateTask({ todolistId, taskId: task.id, model }).then((res) => {
+    _tasksApi.updateTask({ todolistId, taskId: task.id, model }).then((res) => {
       setTasks({
         ...tasks,
         [todolistId]: tasks[todolistId].map((t) => (t.id === task.id ? { ...t, ...res.data.data.item } : t)),
@@ -96,7 +96,7 @@ export const AppHttpRequests = () => {
       startDate: task.startDate,
     }
 
-    tasksApi.updateTask({ todolistId, taskId: task.id, model }).then(() => {
+    _tasksApi.updateTask({ todolistId, taskId: task.id, model }).then(() => {
       setTasks({
         ...tasks,
         [todolistId]: tasks[todolistId].map((t) => (t.id === task.id ? { ...t, title: title } : t)),

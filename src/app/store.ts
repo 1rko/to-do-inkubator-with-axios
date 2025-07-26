@@ -2,16 +2,8 @@ import { configureStore } from "@reduxjs/toolkit"
 import { appReducer, appSlice } from "./app-slice.ts"
 import { tasksReducer, tasksSlice } from "@/features/todolists/model/tasks-slice.ts"
 import { todolistsReducer, todolistsSlice } from "@/features/todolists/model/todolists-slice.ts"
-import { authReducer, authSlice } from "@/features/auth/model/auth-slice.ts"
-import { todolistsApi } from "@/features/todolists/api/_todolistsApi.ts"
 import { setupListeners } from "@reduxjs/toolkit/query"
-
-// объединение reducer'ов с помощью combineReducers
-/*const rootReducer = combineReducers({
-  tasks: tasksSlice,
-  todolists: todolistsSlice,
-  app: appSlice,
-})*/
+import { baseApi } from "@/app/baseApi.ts"
 
 // создание store
 export const store = configureStore({
@@ -19,10 +11,9 @@ export const store = configureStore({
     [tasksSlice.name]: tasksReducer,
     [todolistsSlice.name]: todolistsReducer,
     [appSlice.name]: appReducer,
-    [authSlice.name]: authReducer,
-    [todolistsApi.reducerPath]: todolistsApi.reducer,
+    [baseApi.reducerPath]: baseApi.reducer,
   },
-  middleware: getDefaultMiddleware => getDefaultMiddleware().concat(todolistsApi.middleware),
+  middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(baseApi.middleware),
 })
 
 setupListeners(store.dispatch)
