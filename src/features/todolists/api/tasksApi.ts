@@ -5,9 +5,8 @@ import {
   TaskOperationResponse,
   UpdateTaskModel
 } from "@/features/todolists/api/tasksApi.types.ts"
-import { BaseResponse } from "@/common/types"
+import { BaseResponse, Task } from "@/common/types"
 import { baseApi } from "@/app/baseApi.ts"
-import { Task } from "@/features/todolists/model/tasks-slice.ts"
 
 export const tasksApi = baseApi.injectEndpoints({
   endpoints: (build) => ({

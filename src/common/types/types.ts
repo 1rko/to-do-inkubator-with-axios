@@ -1,5 +1,6 @@
 import { z } from "zod/v4"
 import { ResultCode } from "@/common/enums/enums.ts"
+import { DomainTask } from "@/features/todolists/api/tasksApi.types.ts"
 
 const fieldErrorSchema = z.object({
   field: z.string(),
@@ -25,4 +26,8 @@ export const defaultResponseSchema = baseResponseSchema(z.object({}))
 //export type BaseResponse = z.infer<typeof defaultResponseSchema>
 
 export type RequestStatus = "idle" | "loading" | "succeeded" | "failed"
+
+export type Task = DomainTask & {
+  entityStatus: RequestStatus
+}
 
