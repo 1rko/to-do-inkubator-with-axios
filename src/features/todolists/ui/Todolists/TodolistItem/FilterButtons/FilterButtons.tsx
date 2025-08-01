@@ -1,12 +1,9 @@
-import { useAppDispatch } from "@/common/hooks/useAppDispatch"
 import { containerSx } from "@/common/styles/"
-import {
-  changeTodolistFilterAC,
-  type FilterValues,
-  type DomainTodolist,
-} from "@/features/todolists/model/todolists-slice.ts"
+import { type DomainTodolist, type FilterValues } from "@/features/todolists/model/todolists-slice.ts"
 import Box from "@mui/material/Box"
 import Button from "@mui/material/Button"
+import { todolistsApi } from "@/features/todolists/api/todolistsApi.ts"
+import { useAppDispatch } from "@/common/hooks"
 
 type Props = {
   todolist: DomainTodolist
@@ -18,7 +15,22 @@ export const FilterButtons = ({ todolist }: Props) => {
   const dispatch = useAppDispatch()
 
   const changeFilter = (filter: FilterValues) => {
-    dispatch(changeTodolistFilterAC({ id, filter }))
+    //dispatch(changeTodolistFilterAC({ id, filter }))
+    dispatch(
+      todolistsApi.util.updateQueryData(
+        // название эндпоинта, в котором нужно обновить кэш
+        "getTodolists",
+        // аргументы для эндпоинта
+        undefined,
+        // `updateRecipe` - коллбэк для обновления закэшированного стейта мутабельным образом
+        (state) => {
+          const index = state.findIndex((todolist) => todolist.id === id)
+          if (index !== -1) {
+            state[index].filter = filter
+          }
+        },
+      ),
+    )
   }
   //inert в Box - блокирует кнопки, если todolist.entityStatus === "loading"
   return (

@@ -4,6 +4,7 @@ import List from "@mui/material/List"
 import { TaskStatus } from "@/common/enums/enums.ts"
 import { useGetTasksQuery } from "@/features/todolists/api/tasksApi.ts"
 import { useEffect } from "react"
+import { TasksSkeleton } from "@/features/todolists/ui/Todolists/TodolistItem/Tasks/TasksSkeleton/TasksSkeleton.tsx"
 
 type Props = {
   todolist: DomainTodolist
@@ -12,7 +13,7 @@ type Props = {
 export const Tasks = ({ todolist }: Props) => {
   const { id, filter, entityStatus: todolistEntityStatus } = todolist
 
-  const { data } = useGetTasksQuery(id)
+  const { data, isLoading } = useGetTasksQuery(id)
 
   let todolistTasks = data || []
 
@@ -26,6 +27,10 @@ export const Tasks = ({ todolist }: Props) => {
   }
   if (filter === "completed") {
     filteredTasks = todolistTasks.filter((task) => task.status === TaskStatus.Completed)
+  }
+
+  if (isLoading) {
+    <TasksSkeleton />
   }
 
   return (
