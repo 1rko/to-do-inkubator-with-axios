@@ -30,7 +30,7 @@ export const Tasks = ({ todolist }: Props) => {
   }
 
   if (isLoading) {
-    <TasksSkeleton />
+    ;<TasksSkeleton />
   }
 
   return (

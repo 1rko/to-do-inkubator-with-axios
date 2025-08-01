@@ -21,7 +21,7 @@ export type Task = DomainTask & {
 
 export type TasksState = Record<string, Task[]>
 
-export const tasksSlice = createAppSlice({
+/*export const tasksSlice = createAppSlice({
   name: "tasks",
   initialState: {} as TasksState,
   selectors: {
@@ -29,12 +29,12 @@ export const tasksSlice = createAppSlice({
   },
   extraReducers: (builder) => {
     builder
-     /* .addCase(createTodolistTC.fulfilled, (state, action) => {
+     /!* .addCase(createTodolistTC.fulfilled, (state, action) => {
         state[action.payload.id] = []
       })
       .addCase(deleteTodolistTC.fulfilled, (state, action) => {
         delete state[action.payload.id]
-      })*/
+      })*!/
       .addCase(CLEAR_DATA, (_state, _action) => {
         return {}
       })
@@ -194,4 +194,4 @@ export const tasksSlice = createAppSlice({
 
 export const { fetchTasksTC, createTaskTC, deleteTaskTC, updateTaskTC, changeTaskEntityStatusAC } = tasksSlice.actions
 export const tasksReducer = tasksSlice.reducer
-export const { selectTasks } = tasksSlice.selectors
+export const { selectTasks } = tasksSlice.selectors*/
