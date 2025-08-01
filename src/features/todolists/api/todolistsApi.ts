@@ -3,7 +3,7 @@ import { Todolist } from "@/features/todolists/api/todolistsApi.types.ts"
 import { DomainTodolist } from "@/features/todolists/model/todolists-slice.ts"
 import { baseApi } from "@/app/baseApi.ts"
 
-// Define a service using a base URL and expected endpoints
+// Define a service using a base URL and expected endpoints//
 export const todolistsApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
     getTodolists: build.query<DomainTodolist[], void>({
