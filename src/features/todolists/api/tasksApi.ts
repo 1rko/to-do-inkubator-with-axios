@@ -1,4 +1,3 @@
-import { instance } from "@/common/instance"
 import {
   DomainTask,
   GetTasksResponse,
@@ -19,7 +18,10 @@ export const tasksApi = baseApi.injectEndpoints({
         return tasks.map((task) => ({ ...task, entityStatus: "idle" }))
       },
       extraOptions: { dataSchema: getTasksResponseSchema },
-      providesTags: ["Tasks"],
+      providesTags: (res, _err, todolistId) =>
+        res
+          ? [...res.map(({ id }) => ({ type: "Tasks", id }) as const), { type: "Tasks", id: todolistId }]
+          : ["Tasks"],
     }),
     createTask: build.mutation<TaskOperationResponse, { todolistId: string; title: string }>({
       query: ({ todolistId, title }) => ({
@@ -28,7 +30,7 @@ export const tasksApi = baseApi.injectEndpoints({
         body: { title },
       }),
       extraOptions: { dataSchema: taskOperationResponseSchema },
-      invalidatesTags: ["Tasks"],
+      invalidatesTags: (_res, _err, {todolistId})=> [{type: 'Tasks', id:todolistId }]
     }),
     updateTask: build.mutation<TaskOperationResponse, { todolistId: string; taskId: string; model: UpdateTaskModel }>({
       query: ({ todolistId, taskId, model }) => ({
@@ -37,7 +39,7 @@ export const tasksApi = baseApi.injectEndpoints({
         body: model,
       }),
       extraOptions: { dataSchema: taskOperationResponseSchema },
-      invalidatesTags: ["Tasks"],
+      invalidatesTags: (_res, _err, { taskId }) => [{ type: "Tasks", id: taskId }],
     }),
     deleteTask: build.mutation<BaseResponse, { todolistId: string; taskId: string }>({
       query: ({ todolistId, taskId }) => ({
@@ -45,14 +47,14 @@ export const tasksApi = baseApi.injectEndpoints({
         method: "DELETE",
       }),
       extraOptions: { dataSchema: defaultResponseSchema },
-      invalidatesTags: ["Tasks"],
+      invalidatesTags: (_res, _err, { taskId }) => [{ type: "Tasks", id: taskId }],
     }),
   }),
 })
 
 export const { useGetTasksQuery, useCreateTaskMutation, useUpdateTaskMutation, useDeleteTaskMutation } = tasksApi
 
-export const _tasksApi = {
+/*export const _tasksApi = {
   getTasks(todolistId: string) {
     return instance.get<GetTasksResponse>(`/todo-lists/${todolistId}/tasks`)
   },
@@ -66,4 +68,4 @@ export const _tasksApi = {
   deleteTask({ todolistId, taskId }: { todolistId: string; taskId: string }) {
     return instance.delete<BaseResponse>(`/todo-lists/${todolistId}/tasks/${taskId}`)
   },
-}
+}*/
