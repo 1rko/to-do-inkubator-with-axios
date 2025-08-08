@@ -7,7 +7,9 @@ import type { ChangeEvent } from "react"
 import { getListItemSx } from "./TaskItem.styles"
 import { TaskStatus } from "@/common/enums/enums.ts"
 import { DomainTask, UpdateTaskModel } from "@/features/todolists/api/tasksApi.types.ts"
-import { useDeleteTaskMutation, useUpdateTaskMutation } from "@/features/todolists/api/tasksApi.ts"
+import { tasksApi, useDeleteTaskMutation, useUpdateTaskMutation } from "@/features/todolists/api/tasksApi.ts"
+import { RequestStatus } from "@/common/types"
+import { useAppDispatch } from "@/common/hooks"
 
 type Props = {
   task: DomainTask
@@ -18,6 +20,36 @@ type Props = {
 export const TaskItem = ({ task, todolistId, disabled }: Props) => {
   const [updateTask] = useUpdateTaskMutation()
   const [deleteTaskMutation] = useDeleteTaskMutation()
+
+  const dispatch = useAppDispatch()
+
+  //EntityStatus используется для disable при действиях при медленном интернете
+  const changeTaskEntityStatus = (entityStatus: RequestStatus) => {
+    dispatch(
+      tasksApi.util.updateQueryData(
+        // название эндпоинта, в котором нужно обновить кэш
+        "getTasks",
+        // аргументы для эндпоинта
+        { todolistId: todolistId, params: { page: 1 } },
+        // `updateRecipe` - коллбэк для обновления закэшированного стейта мутабельным образом
+        (state) => {
+          const index = state.items.findIndex((t) => t.id === task.id)
+          if (index !== -1) {
+            state.items[index].entityStatus = entityStatus
+          }
+        },
+      ),
+    )
+  }
+
+  const deleteTask = () => {
+    changeTaskEntityStatus("loading")
+    deleteTaskMutation({ todolistId, taskId: task.id })
+      .unwrap()
+      .catch(() => {
+        changeTaskEntityStatus("idle")
+      })
+  }
 
   const createUpdateModel = (rewritedModelItems: Partial<UpdateTaskModel>) => {
     const model: UpdateTaskModel = {
@@ -32,19 +64,23 @@ export const TaskItem = ({ task, todolistId, disabled }: Props) => {
     return model
   }
 
-  const deleteTask = () => {
-    deleteTaskMutation({ todolistId, taskId: task.id })
-  }
-
   const changeTaskStatus = (e: ChangeEvent<HTMLInputElement>) => {
     let status = e.currentTarget.checked ? TaskStatus.Completed : TaskStatus.New
     const model = createUpdateModel({ status })
-    updateTask({ taskId: task.id, todolistId: todolistId, model })
+
+    changeTaskEntityStatus("loading")
+    updateTask({ taskId: task.id, todolistId: todolistId, model }).finally(() => {
+      changeTaskEntityStatus("idle")
+    })
   }
 
   const changeTaskTitle = (title: string) => {
     const model = createUpdateModel({ title })
-    updateTask({ taskId: task.id, todolistId: todolistId, model })
+
+    changeTaskEntityStatus("loading")
+    updateTask({ taskId: task.id, todolistId: todolistId, model }).finally(() => {
+      changeTaskEntityStatus("idle")
+    })
   }
 
   const isTaskCompleted = task.status === TaskStatus.Completed

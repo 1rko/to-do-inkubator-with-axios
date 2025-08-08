@@ -1,10 +1,11 @@
-import type { DomainTodolist } from "@/features/todolists/model/todolists-slice.ts"
 import { TaskItem } from "./TaskItem/TaskItem"
 import List from "@mui/material/List"
 import { TaskStatus } from "@/common/enums/enums.ts"
 import { useGetTasksQuery } from "@/features/todolists/api/tasksApi.ts"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { TasksSkeleton } from "@/features/todolists/ui/Todolists/TodolistItem/Tasks/TasksSkeleton/TasksSkeleton.tsx"
+import { DomainTodolist } from "@/features/todolists/lib"
+import { TasksPagination } from "@/features/todolists/ui/Todolists/TodolistItem/Tasks/TasksPagination/TasksPagination.tsx"
 
 type Props = {
   todolist: DomainTodolist
@@ -13,9 +14,14 @@ type Props = {
 export const Tasks = ({ todolist }: Props) => {
   const { id, filter, entityStatus: todolistEntityStatus } = todolist
 
-  const { data, isLoading } = useGetTasksQuery(id)
+  const [page, setPage] = useState<number>(1)
 
-  let todolistTasks = data || []
+  const { data, isLoading } = useGetTasksQuery({
+    todolistId: id,
+    params: { page: page },
+  })
+
+  let todolistTasks = data?.items || []
 
   useEffect(() => {
     if (!data) return
@@ -38,16 +44,19 @@ export const Tasks = ({ todolist }: Props) => {
       {filteredTasks?.length === 0 ? (
         <p>Тасок нет</p>
       ) : (
-        <List>
-          {filteredTasks?.map((task) => (
-            <TaskItem
-              key={task.id}
-              task={task}
-              todolistId={id}
-              disabled={task?.entityStatus === "loading" || todolistEntityStatus === "loading"}
-            />
-          ))}
-        </List>
+        <>
+          <List>
+            {filteredTasks?.map((task) => (
+              <TaskItem
+                key={task.id}
+                task={task}
+                todolistId={id}
+                disabled={task?.entityStatus === "loading" || todolistEntityStatus === "loading"}
+              />
+            ))}
+          </List>
+          <TasksPagination page={page} totalCount={data?.totalCount || 5} setPage={setPage} />
+        </>
       )}
     </>
   )

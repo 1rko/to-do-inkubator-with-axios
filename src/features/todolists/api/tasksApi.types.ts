@@ -19,28 +19,43 @@ export type DomainTask = z.infer<typeof domainTaskSchema>
 
 export const getTasksResponseSchema = z.object({
   error: z.string().nullable(),
-  totalCount:z.number().int(),
-  items: z.array(domainTaskSchema)
+  totalCount: z.number().int(),
+  items: z.array(domainTaskSchema),
 })
 
 export type GetTasksResponse = z.infer<typeof getTasksResponseSchema>
 
-/*export type UpdateTaskModel = {
-  description: string | null
-  title: string
-  status: TaskStatus
-  priority: TaskPriority
-  startDate: string | null
-  deadline: string | null
-}*/
+export const TaskWithEntityStatusSchema = z.object({
+  description: z.string().nullable(),
+  title: z.string(),
+  status: z.enum(TaskStatus),
+  priority: z.enum(TaskPriority),
+  startDate: z.string().nullable(),
+  deadline: z.string().nullable(),
+  id: z.string(),
+  todoListId: z.string(),
+  order: z.number(),
+  addedDate: z.iso.datetime({ local: true }),
+  entityStatus: z.string(),
+})
+
+export const getTasksWithEntityStatusSchema = z.object({
+  error: z.string().nullable(),
+  totalCount: z.number().int(),
+  items: z.array(TaskWithEntityStatusSchema),
+})
+
+export type GetTasksWithEntityStatus = z.infer<typeof getTasksWithEntityStatusSchema>
+
+//export type TaskWithEntityStatus = DomainTask & { entityStatus: "idle" }
 
 export const updateTaskModelSchema = z.object({
   description: z.string().nullable(),
-  title:  z.string(),
-  status: z.enum(TaskStatus), 
+  title: z.string(),
+  status: z.enum(TaskStatus),
   priority: z.enum(TaskPriority),
-  startDate:  z.string().nullable(),
-  deadline:  z.string().nullable(),
+  startDate: z.string().nullable(),
+  deadline: z.string().nullable(),
 })
 
 export type UpdateTaskModel = z.infer<typeof updateTaskModelSchema>

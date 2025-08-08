@@ -1,26 +1,33 @@
 import {
   DomainTask,
   GetTasksResponse,
-  getTasksResponseSchema,
+  getTasksResponseSchema, GetTasksWithEntityStatus,
   TaskOperationResponse,
   taskOperationResponseSchema,
-  UpdateTaskModel,
+  UpdateTaskModel
 } from "@/features/todolists/api/tasksApi.types.ts"
-import { BaseResponse, defaultResponseSchema, Task } from "@/common/types"
+import { BaseResponse, defaultResponseSchema } from "@/common/types"
 import { baseApi } from "@/app/baseApi.ts"
+import { PAGE_SIZE } from "@/common/constants"
+
+//type TaskWithEntityStatus = DomainTask & { entityStatus: "idle" }
 
 export const tasksApi = baseApi.injectEndpoints({
   endpoints: (build) => ({
-    getTasks: build.query<Task[], string>({
-      query: (todolistId) => `/todo-lists/${todolistId}/tasks`,
-      transformResponse: (response: GetTasksResponse) => {
-        let tasks: DomainTask[] = response.items
-        return tasks.map((task) => ({ ...task, entityStatus: "idle" }))
+    getTasks: build.query<GetTasksWithEntityStatus, { todolistId: string; params: { page: number } }>({
+      query: ({ todolistId, params }) => ({
+        url: `/todo-lists/${todolistId}/tasks`,
+        params: { ...params, count: PAGE_SIZE },
+      }),
+      transformResponse: (response: GetTasksResponse): GetTasksWithEntityStatus => {
+        const tasks: DomainTask[] = response.items
+        const newTasks = tasks.map((task) => ({ ...task, entityStatus: "idle" }))
+        return { ...response, items: [...newTasks] }
       },
       extraOptions: { dataSchema: getTasksResponseSchema },
-      providesTags: (res, _err, todolistId) =>
+      providesTags: (res, _err, { todolistId }) =>
         res
-          ? [...res.map(({ id }) => ({ type: "Tasks", id }) as const), { type: "Tasks", id: todolistId }]
+          ? [...res.items.map(({ id }) => ({ type: "Tasks", id }) as const), { type: "Tasks", id: todolistId }]
           : ["Tasks"],
     }),
     createTask: build.mutation<TaskOperationResponse, { todolistId: string; title: string }>({
@@ -30,7 +37,7 @@ export const tasksApi = baseApi.injectEndpoints({
         body: { title },
       }),
       extraOptions: { dataSchema: taskOperationResponseSchema },
-      invalidatesTags: (_res, _err, {todolistId})=> [{type: 'Tasks', id:todolistId }]
+      invalidatesTags: (_res, _err, { todolistId }) => [{ type: "Tasks", id: todolistId }],
     }),
     updateTask: build.mutation<TaskOperationResponse, { todolistId: string; taskId: string; model: UpdateTaskModel }>({
       query: ({ todolistId, taskId, model }) => ({
