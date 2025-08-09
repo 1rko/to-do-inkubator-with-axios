@@ -1,4 +1,4 @@
-import { selectIsLoggedIn, selectThemeMode, setIsLoggedInAC } from "@/app/app-slice"
+import { selectIsLoggedIn, selectThemeMode, setAppErrorAC, setIsLoggedInAC } from "@/app/app-slice"
 import { useAppDispatch, useAppSelector } from "@/common/hooks"
 import { getTheme } from "@/common/theme"
 import Button from "@mui/material/Button"
@@ -18,10 +18,13 @@ import { Path } from "@/common/routing"
 import { useLoginMutation } from "../../api/authApi.ts"
 import { ResultCode } from "@/common/enums/enums.ts"
 import { AUTH_TOKEN } from "@/common/constants"
+import { useState } from "react"
+import { Captcha } from "@/features/auth/ui/Login/Capcha/Captcha.tsx"
 
 export const Login = () => {
   const themeMode = useAppSelector(selectThemeMode)
   const isLoggedIn = useAppSelector(selectIsLoggedIn)
+  const [captchaIsRequired, setCaptchaIsRequired] = useState(false)
 
   const dispatch = useAppDispatch()
 
@@ -35,6 +38,10 @@ export const Login = () => {
         dispatch(setIsLoggedInAC({ isLoggedIn: true }))
         localStorage.setItem(AUTH_TOKEN, res.data.data.token)
         reset()
+      } else if (res.data?.resultCode === ResultCode.CaptchaError) {
+        setCaptchaIsRequired(true)
+        dispatch(setAppErrorAC({ error: res.data?.messages[0] }))
+        reset()
       }
     })
   }
@@ -47,7 +54,7 @@ export const Login = () => {
     formState: { errors },
   } = useForm<LoginInputs>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { email: "", password: "", rememberMe: false },
+    defaultValues: { email: "", password: "", rememberMe: false, captcha: "" },
   })
 
   if (isLoggedIn) {
@@ -99,6 +106,19 @@ export const Login = () => {
                 />
               }
             />
+            {captchaIsRequired && (
+              <>
+                <Captcha />
+                <TextField
+                  error={!!errors.captcha}
+                  type="captcha"
+                  label="Captcha"
+                  margin="normal"
+                  {...register("captcha")}
+                />
+                {errors.captcha && <span className={s.errorMessage}>{errors.captcha.message}</span>}
+              </>
+            )}
             <Button type="submit" variant="contained" color="primary">
               Login
             </Button>
