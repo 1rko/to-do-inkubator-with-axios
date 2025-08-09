@@ -22,20 +22,52 @@ export const todolistsApi = baseApi.injectEndpoints({
       extraOptions: { dataSchema: defaultResponseSchema },
       invalidatesTags: ["Todolist"],
     }),
+
     changeTodolistTitle: build.mutation<BaseResponse, { id: string; title: string }>({
       query: ({ id, title }) => ({
         url: `/todo-lists/${id}`,
         method: "PUT",
         body: { title },
       }),
+      async onQueryStarted({ id, title }, { dispatch, queryFulfilled }) {
+        const patchResult = dispatch(
+          todolistsApi.util.updateQueryData("getTodolists", undefined, (state) => {
+            const index = state.findIndex((todolist) => todolist.id === id)
+            if (index !== -1) {
+              state[index].title = title
+            }
+          }),
+        )
+        try {
+          await queryFulfilled
+        } catch {
+          patchResult.undo()
+        }
+      },
       extraOptions: { dataSchema: defaultResponseSchema },
       invalidatesTags: ["Todolist"],
     }),
+
     deleteTodolist: build.mutation<BaseResponse, string>({
       query: (id) => ({
         url: `/todo-lists/${id}`,
         method: "DELETE",
       }),
+      async onQueryStarted(id, { dispatch, queryFulfilled }) {
+        const patchResult = dispatch(
+          todolistsApi.util.updateQueryData("getTodolists", undefined, (state) => {
+            const index = state.findIndex((todolist) => todolist.id === id)
+            if (index !== -1) {
+              state.splice(index, 1)
+            }
+          }),
+        )
+        try {
+          await queryFulfilled
+        } catch {
+          patchResult.undo()
+        }
+      },
       extraOptions: { dataSchema: defaultResponseSchema },
       invalidatesTags: ["Todolist"],
     }),

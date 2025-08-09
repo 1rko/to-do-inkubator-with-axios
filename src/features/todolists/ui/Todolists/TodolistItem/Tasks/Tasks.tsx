@@ -40,7 +40,7 @@ export const Tasks = ({ todolist }: Props) => {
     ;<TasksSkeleton />
   }
 
-  const paginashionIsShown = PAGE_SIZE < (data?.totalCount || 0)
+  const paginationIsShown = PAGE_SIZE < (data?.totalCount || 0)
 
   return (
     <>
@@ -58,9 +58,7 @@ export const Tasks = ({ todolist }: Props) => {
               />
             ))}
           </List>
-          {paginashionIsShown && (
-            <TasksPagination page={page} totalCount={data?.totalCount || 0} setPage={setPage} />
-          )}
+          {paginationIsShown && <TasksPagination page={page} totalCount={data?.totalCount || 0} setPage={setPage} />}
         </>
       )}
     </>

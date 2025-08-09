@@ -41,7 +41,7 @@ export const TodolistTitle = ({ todolist }: Props) => {
     )
   }
 
-  const deleteTodolist = () => {
+  const deleteTodolist = async () => {
     changeTodolistStatus("loading")
     deleteTodolistMutation(id)
       .unwrap()

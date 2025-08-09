@@ -44,7 +44,7 @@ export const TaskItem = ({ task, todolistId, disabled }: Props) => {
 
   const deleteTask = () => {
     changeTaskEntityStatus("loading")
-    deleteTaskMutation({ todolistId, taskId: task.id })
+    deleteTaskMutation({ todolistId, taskId: task.id})
       .unwrap()
       .catch(() => {
         changeTaskEntityStatus("idle")

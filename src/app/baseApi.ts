@@ -6,6 +6,9 @@ import { baseQueryWithZodValidation } from "@/common/utils/baseQueryWithZodValid
 export const baseApi = createApi({
   reducerPath: "todolistsApi",
   tagTypes: ["Todolist", "Tasks"],
+  keepUnusedDataFor: 60,
+  refetchOnFocus: true,
+  refetchOnReconnect: true,
   baseQuery: baseQueryWithZodValidation( async (args, api, extraOptions) => {
     const result = await fetchBaseQuery({
       baseUrl: import.meta.env.VITE_BASE_URL,
